@@ -1,84 +1,88 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
-
 #include "PlayerCharacter.h"
+#include "Components/InputComponent.h"
 
 // Sets default values
 APlayerCharacter::APlayerCharacter()
 {
- 	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
-	PrimaryActorTick.bCanEverTick = true;
+    // Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
+    PrimaryActorTick.bCanEverTick = true;
 
-	if (GEngine)
-	{
-		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Yellow, TEXT("Player initialized"));
-	}
-	
-	PlayerCamComp = CreateDefaultSubobject<UCameraComponent>(TEXT("First Person Cam"));
+    if (GEngine)
+    {
+        GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Yellow, TEXT("Player initialized"));
+    }
 
-	PlayerCamComp->SetupAttachment(GetMesh(), "head");
+    PlayerCamComp = CreateDefaultSubobject<UCameraComponent>(TEXT("FirstPersonCam"));
 
-	PlayerCamComp->bUsePawnControlRotation = true;
+    PlayerCamComp->SetupAttachment(GetMesh(), TEXT("head"));
+
+    PlayerCamComp->bUsePawnControlRotation = true;
 }
 
 // Called when the game starts or when spawned
 void APlayerCharacter::BeginPlay()
 {
-	Super::BeginPlay();
-
-	
+    Super::BeginPlay();
 }
 
 // Called every frame
 void APlayerCharacter::Tick(float DeltaTime)
 {
-	Super::Tick(DeltaTime);
-
+    Super::Tick(DeltaTime);
 }
 
 // Called to bind functionality to input
 void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
-	Super::SetupPlayerInputComponent(PlayerInputComponent);
+    Super::SetupPlayerInputComponent(PlayerInputComponent);
 
-	if (GEngine)
-	{
-		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Yellow, TEXT("Input initialized"));
-	}
+    if (GEngine)
+    {
+        GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Yellow, TEXT("Input initialized"));
+    }
 
-	CreatePlayerInputComponent()->BindAxis("MoveForward", this, &APlayerCharacter::MoveForward);
-	CreatePlayerInputComponent()->BindAxis("MoveRight", this, &APlayerCharacter::MoveRight);
-	CreatePlayerInputComponent()->BindAxis("LookUp", this, &APlayerCharacter::AddControllerPitchInput);
-	CreatePlayerInputComponent()->BindAxis("Turn", this, &APlayerCharacter::AddControllerYawInput);
-	CreatePlayerInputComponent()->BindAction("JumpEvent", IE_Pressed, this, &APlayerCharacter::StartJump);
-	CreatePlayerInputComponent()->BindAction("JumpEvent", IE_Released, this, &APlayerCharacter::StopJump);
-
+    if (PlayerInputComponent)
+    {
+        PlayerInputComponent->BindAxis("MoveForward", this, &APlayerCharacter::MoveForward);
+        PlayerInputComponent->BindAxis("MoveRight", this, &APlayerCharacter::MoveRight);
+        PlayerInputComponent->BindAxis("LookUp", this, &APlayerCharacter::AddControllerPitchInput);
+        PlayerInputComponent->BindAxis("Turn", this, &APlayerCharacter::AddControllerYawInput);
+        PlayerInputComponent->BindAction("JumpEvent", IE_Pressed, this, &APlayerCharacter::StartJump);
+        PlayerInputComponent->BindAction("JumpEvent", IE_Released, this, &APlayerCharacter::StopJump);
+    }
 }
 
 void APlayerCharacter::MoveForward(float axisValue)
 {
-	FVector Direction = FRotationMatrix(Controller->GetControlRotation()).GetScaledAxis(EAxis::X);
-	AddMovementInput(Direction, axisValue);
+    if (Controller)
+    {
+        FVector Direction = FRotationMatrix(Controller->GetControlRotation()).GetScaledAxis(EAxis::X);
+        AddMovementInput(Direction, axisValue);
+    }
 }
 
 void APlayerCharacter::MoveRight(float axisValue)
 {
-	FVector Direction = FRotationMatrix(Controller->GetControlRotation()).GetScaledAxis(EAxis::Y);
-	AddMovementInput(Direction, axisValue);
+    if (Controller)
+    {
+        FVector Direction = FRotationMatrix(Controller->GetControlRotation()).GetScaledAxis(EAxis::Y);
+        AddMovementInput(Direction, axisValue);
+    }
 }
 
 void APlayerCharacter::StartJump()
 {
-	bPressedJump = true;
+    bPressedJump = true;
 }
 
 void APlayerCharacter::StopJump()
 {
-	bPressedJump = false;
+    bPressedJump = false;
 }
 
 void APlayerCharacter::FindObject()
 {
 
 }
-
