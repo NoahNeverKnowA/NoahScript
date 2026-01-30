@@ -1,46 +1,44 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
-#pragma once
-
-#include "CoreMinimal.h"
-#include "GameFramework/Actor.h"
+#include "Resources_M.h"
 #include "Components/StaticMeshComponent.h"
 #include "Components/TextRenderComponent.h"
-#include "Resources_M.generated.h"
 
-UCLASS()
-class GAM3122_API AResources_M : public AActor
+// Sets default values
+AResources_M::AResources_M()
 {
-    GENERATED_BODY()
-    
-public:    
-    // Sets default values for this actor's properties
-    AResources_M();
+	PrimaryActorTick.bCanEverTick = true;
 
-protected:
-    // Called when the game starts or when spawned
-    virtual void BeginPlay() override;
+	Mesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Mesh"));
+	RootComponent = Mesh;
 
-public:    
-    // Called every frame
-    virtual void Tick(float DeltaTime) override;
+	ResourceNameText = CreateDefaultSubobject<UTextRenderComponent>(TEXT("ResourceNameText"));
+	ResourceNameText->SetupAttachment(RootComponent);
 
-    UPROPERTY(EditAnywhere)
-    FString resourceName = TEXT("Wood");
+	// Initialize the displayed text from resourceName
+	ResourceNameText->SetText(FText::FromString(resourceName));
+}
 
-    UPROPERTY(EditAnywhere)
-    int resourceAmount = 5;
+// Called when the game starts or when spawned
+void AResources_M::BeginPlay()
+{
+	Super::BeginPlay();
 
-    UPROPERTY(EditAnywhere)
-    int totalResource = 100;
+	tempText = FText::FromString(resourceName);
+	if (ResourceNameText)
+	{
+		ResourceNameText->SetText(tempText);
+	}
+}
 
-    UPROPERTY()
-    FText tempText;
+// Called every frame
+void AResources_M::Tick(float DeltaTime)
+{
+	Super::Tick(DeltaTime);
 
-    UPROPERTY(EditAnywhere)
-    UTextRenderComponent* ResourceNameText = nullptr;
-
-    UPROPERTY(EditAnywhere)
-    UStaticMeshComponent* Mesh = nullptr;
-};
-
+	// Example: keep the text synced (optional)
+	if (ResourceNameText)
+	{
+		ResourceNameText->SetText(FText::FromString(resourceName));
+	}
+}
