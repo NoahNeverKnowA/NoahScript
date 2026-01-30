@@ -45,7 +45,7 @@ public:
 	UPROPERTY(VisibleAnywhere)
 	UCameraComponent* PlayerCamComp;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite,Category = "Player Stats")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Player Stats")
 	float Health = 100.0f;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Player Stats")
@@ -53,6 +53,23 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Player Stats")
 	float Hunger = 100.0f;
+
+	// Optional individual resource counts (kept for convenience)
+	UPROPERTY(EditAnywhere, Category = "Resources")
+	int Wood = 0;
+
+	UPROPERTY(EditAnywhere, Category = "Resources")
+	int Stone = 0;
+
+	UPROPERTY(EditAnywhere, Category = "Resources")
+	int Berry = 0;
+
+	// Consolidated resource storage
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Resources")
+	TArray<int32> ResourcesArray;
+
+	UPROPERTY(EditAnywhere, Category = "Resources")
+	TArray<FString> ResourcesNameArray;
 
 	UFUNCTION(BlueprintCallable)
 	void SetHealth(float amount);
@@ -65,4 +82,8 @@ public:
 	
 	UFUNCTION()
 	void DecreaseStats();
+
+	// Inventory / resources API
+	UFUNCTION()
+	void GiveResource(int32 amount, const FString& resourceType);
 };
