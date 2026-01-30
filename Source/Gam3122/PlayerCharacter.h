@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "Camera/CameraComponent.h"
 #include "GameFramework/Character.h"
+#include "Kismet/GameplayStatics.h"
 #include "PlayerCharacter.generated.h"
 
 UCLASS()
@@ -19,6 +20,13 @@ public:
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
+
+	// Timer handle for stamina regeneration
+	FTimerHandle StaminaRegenTimerHandle;
+
+	// Regenerate stamina over time
+	UFUNCTION()
+	void RegenerateStamina();
 
 public:	
 	// Called every frame
@@ -70,6 +78,9 @@ public:
 
 	UPROPERTY(EditAnywhere, Category = "Resources")
 	TArray<FString> ResourcesNameArray;
+
+	UPROPERTY(EditAnywhere, Category = "HitMarker")
+	UMaterialInterface* hitDecal;
 
 	UFUNCTION(BlueprintCallable)
 	void SetHealth(float amount);

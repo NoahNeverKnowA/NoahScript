@@ -5,6 +5,8 @@
 #include "TimerManager.h"
 #include "Resources_M.h"
 #include "Engine/Engine.h" // for GEngine and logging
+#include "Kismet/GameplayStatics.h"
+#include "Math/UnrealMathUtility.h"
 
 // Sets default values
 APlayerCharacter::APlayerCharacter()
@@ -37,6 +39,19 @@ void APlayerCharacter::BeginPlay()
 
     FTimerHandle StatsTimerHandle;
     GetWorld()->GetTimerManager().SetTimer(StatsTimerHandle, this, &APlayerCharacter::DecreaseStats, 2.0f, true);
+
+    // Start stamina regeneration timer: every 2 seconds, +10 stamina
+    GetWorld()->GetTimerManager().SetTimer(StaminaRegenTimerHandle, this, &APlayerCharacter::RegenerateStamina, 2.0f, true);
+}
+
+void APlayerCharacter::RegenerateStamina()
+{
+    // Regenerate only when below max; you can add more conditions (e.g., not sprinting)
+    if (Stamina < 100.0f)
+    {
+        // Add 10 stamina every 2 seconds
+        SetStamina(10.0f);
+    }
 }
 
 // Called every frame
@@ -99,6 +114,17 @@ void APlayerCharacter::StopJump()
 
 void APlayerCharacter::FindObject()
 {
+    if (Stamina > 5.0f)
+    {
+        SetStamina(-5.0f);
+    }
+    else
+    {
+        // Not enough stamina to interact
+        check(GEngine != nullptr);
+        GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("Not enough stamina to interact"));
+        return;
+    }
     // Ensure we have a camera (fall back to controller rotation if necessary)
     if (!PlayerCamComp)
     {
@@ -165,6 +191,9 @@ void APlayerCharacter::FindObject()
 
         check(GEngine != nullptr);
         GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, TEXT("Resource Collected"));
+
+        // use correct GameplayStatics call and the header's member 'hitDecal'
+        UGameplayStatics::SpawnDecalAtLocation(GetWorld(), hitDecal, FVector(10.0f, 10.0f, 10.0f), HitResult.ImpactPoint, FRotator(-90, 0, 0), 2.0f);
     }
     else
     {
@@ -176,37 +205,29 @@ void APlayerCharacter::FindObject()
 
 void APlayerCharacter::SetHealth(float amount)
 {
-    if (Health + amount < 100)
-    {
-        Health = Health + amount;
-    }
+    Health = FMath::Clamp(Health + amount, 0.0f, 100.0f);
 }
 
 void APlayerCharacter::SetStamina(float amount)
 {
-    if (Stamina + amount < 100)
-    {
-        Stamina = Stamina + amount;
-    }
+    // Clamp stamina into [0,100]
+    Stamina = FMath::Clamp(Stamina + amount, 0.0f, 100.0f);
 }
 
 void APlayerCharacter::SetHunger(float amount)
 {
-    if (Hunger + amount < 100)
-    {
-        Hunger = Hunger + amount;
-    }
+    Hunger = FMath::Clamp(Hunger + amount, 0.0f, 100.0f);
 }
 
 void APlayerCharacter::DecreaseStats()
 {
+    // Periodic hunger and health effects only. Stamina is not drained here;
+    // stamina now only changes when actions (e.g. FindObject) explicitly modify it.
+
     if (Hunger > 0.0f)
     {
         SetHunger(-1.0f);
     }
-
-    // decrease stamina
-    SetStamina(-10.0f);
 
     if (Hunger <= 0.0f)
     {
