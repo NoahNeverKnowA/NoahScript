@@ -7,6 +7,7 @@
 #include "GameFramework/Character.h"
 #include "Kismet/GameplayStatics.h"
 #include "BuildingPart.h"
+#include "PlayerWidget.h"
 #include "PlayerCharacter.generated.h"
 
 UCLASS()
@@ -99,6 +100,9 @@ public:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Building")
 	ABuildingPart* spawnedPart = nullptr;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	UPlayerWidget* PlayerUI;
 
 	UFUNCTION(BlueprintCallable, Category = "Player Stats")
 	void SetHealth(float amount);

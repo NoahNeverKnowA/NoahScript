@@ -60,6 +60,8 @@ void APlayerCharacter::Tick(float DeltaTime)
 {
     Super::Tick(DeltaTime);
 
+	PlayerUI->UpdateBars(Health, Hunger, Stamina);
+
     if (isBuilding)
     {
         if (spawnedPart)
@@ -398,6 +400,15 @@ APlayerCharacter* APlayerCharacter::GetPlayerCharacterSafe(const UObject* WorldC
 
     APawn* Pawn = PC->GetPawn();
     return Cast<APlayerCharacter>(Pawn);
+}
+
+// Sync helper for Blueprint when it modifies ResourcesArray directly
+void APlayerCharacter::SyncArraysFromResourcesArray()
+{
+    // Just sync individual variables from ResourcesArray
+    Wood = (ResourcesArray.IsValidIndex(0)) ? ResourcesArray[0] : 0;
+    Stone = (ResourcesArray.IsValidIndex(1)) ? ResourcesArray[1] : 0;
+    Berry = (ResourcesArray.IsValidIndex(2)) ? ResourcesArray[2] : 0;
 }
 
 #if WITH_EDITOR
