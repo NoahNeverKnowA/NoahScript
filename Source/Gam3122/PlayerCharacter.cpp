@@ -43,6 +43,12 @@ void APlayerCharacter::BeginPlay()
 
     // Start stamina regeneration timer: every 2 seconds, +10 stamina
     GetWorld()->GetTimerManager().SetTimer(StaminaRegenTimerHandle, this, &APlayerCharacter::RegenerateStamina, 2.0f, true);
+
+    if(objWidget)
+        {
+        objWidget->UpdatematOBJ(0.0f);
+        objWidget->UpdatebuildOBJ(0.0f);
+	}
 }
 
 void APlayerCharacter::RegenerateStamina()
@@ -199,6 +205,10 @@ void APlayerCharacter::FindObject()
         {
             GiveResource(ResourceValue, HitName);
 
+            matsCollected += ResourceValue;
+            
+            objWidget->UpdatematOBJ(matsCollected); 
+
             // use correct GameplayStatics call and the header's member 'hitDecal'
             UGameplayStatics::SpawnDecalAtLocation(GetWorld(), hitDecal, FVector(10.0f, 10.0f, 10.0f), HitResult.ImpactPoint, FRotator(-90, 0, 0), 2.0f);
         }
@@ -211,6 +221,9 @@ void APlayerCharacter::FindObject()
     {
         // If we're in building mode, toggle it off when interact is used
         isBuilding = false;
+        objectsBuilt += 1.0f;
+
+        objWidget->UpdatebuildOBJ(objectsBuilt);
     }
 }
 
