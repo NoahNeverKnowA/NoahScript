@@ -43,6 +43,12 @@ void APlayerCharacter::BeginPlay()
 
     // Start stamina regeneration timer: every 2 seconds, +10 stamina
     GetWorld()->GetTimerManager().SetTimer(StaminaRegenTimerHandle, this, &APlayerCharacter::RegenerateStamina, 2.0f, true);
+
+    if(objWidget)
+        {
+        objWidget->UpdatematOBJ(0.0f);
+        objWidget->UpdatebuildOBJ(0.0f);
+	}
 }
 
 void APlayerCharacter::RegenerateStamina()
@@ -59,6 +65,8 @@ void APlayerCharacter::RegenerateStamina()
 void APlayerCharacter::Tick(float DeltaTime)
 {
     Super::Tick(DeltaTime);
+
+	PlayerUI->UpdateBars(Health, Hunger, Stamina);
 
     if (isBuilding)
     {
@@ -197,6 +205,10 @@ void APlayerCharacter::FindObject()
         {
             GiveResource(ResourceValue, HitName);
 
+            matsCollected += ResourceValue;
+            
+            objWidget->UpdatematOBJ(matsCollected); 
+
             // use correct GameplayStatics call and the header's member 'hitDecal'
             UGameplayStatics::SpawnDecalAtLocation(GetWorld(), hitDecal, FVector(10.0f, 10.0f, 10.0f), HitResult.ImpactPoint, FRotator(-90, 0, 0), 2.0f);
         }
@@ -209,6 +221,9 @@ void APlayerCharacter::FindObject()
     {
         // If we're in building mode, toggle it off when interact is used
         isBuilding = false;
+        objectsBuilt += 1.0f;
+
+        objWidget->UpdatebuildOBJ(objectsBuilt);
     }
 }
 
@@ -398,6 +413,15 @@ APlayerCharacter* APlayerCharacter::GetPlayerCharacterSafe(const UObject* WorldC
 
     APawn* Pawn = PC->GetPawn();
     return Cast<APlayerCharacter>(Pawn);
+}
+
+// Sync helper for Blueprint when it modifies ResourcesArray directly
+void APlayerCharacter::SyncArraysFromResourcesArray()
+{
+    // Just sync individual variables from ResourcesArray
+    Wood = (ResourcesArray.IsValidIndex(0)) ? ResourcesArray[0] : 0;
+    Stone = (ResourcesArray.IsValidIndex(1)) ? ResourcesArray[1] : 0;
+    Berry = (ResourcesArray.IsValidIndex(2)) ? ResourcesArray[2] : 0;
 }
 
 #if WITH_EDITOR
